@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloak Launcher</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Cloak Tool</h2>
+    <input type="text" id="urlInput" placeholder="Enter URL (e.g. google.com)" /><br>
+    <button onclick="launchCloakedPage()">Open Cloaked Page</button>
+</div>
+
+<script>
+    function launchCloakedPage() {
+        let urlStr = document.getElementById('urlInput').value.trim();
+
+        if (!urlStr) {
+            alert("Please enter a URL");
+            return;
+        }
+
+        // Add https:// if missing
+        if (!/^https?:\/\//i.test(urlStr)) {
+            urlStr = 'https://' + urlStr;
+        }
+
+        let url;
+        try {
+            url = new URL(urlStr);
+        } catch (e) {
+            alert('Invalid URL.');
+            return;
+        }
+
+        const domain = url.hostname;
+        const encodedDomain = btoa(domain);
+        const searchUrl = `https://westmorganhighschool.org/search?query=${encodeURIComponent(encodedDomain)}`;
+
+        // THE PAYLOAD: This is the HTML that will be injected into the about:blank tab
+        const payload = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Loading...</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+        #header {
+            background: #333;
+            color: white;
+            padding: 5px 15px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #resultIframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <span>Opened Cloaked Page</span>
+        <span style="opacity: 0.5;">Secure Session</span>
+    </div>
+    <iframe id="resultIframe" src="${searchUrl}"></iframe>
+</body>
+</html>`;
+
+        // 1. Open the new blank window
+        const newWin = window.open('about:blank', '_blank');
+
+        if (newWin) {
+            // 2. Write the payload into the new window
+            newWin.document.open();
+            newWin.document.write(payload);
+            newWin.document.close();
+            
+            // 3. Attempt to go full screen (Requires user interaction in the new window, 
+            // but we can trigger the request to the new window context)
+            newWin.focus();
+        } else {
+            alert("Popup blocked! Please allow popups for this site.");
+        }
+    }
+</script>
+
+</body>
+</html>
