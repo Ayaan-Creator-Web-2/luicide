@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Browser</title>
+    <style>
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%;
+            font-family: sans-serif; background: #0f0b08; color: #fef3c7;
+            overflow: hidden;
+        }
+
+        /* Setup for the initial Gate Input screen */
+        #gate-screen {
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; height: 100vh; width: 100vw;
+        }
+
+        /* Setup for the Browser screen */
+        #browser-screen {
+            display: none; flex-direction: column; height: 100vh; width: 100vw;
+        }
+
+        .input-group {
+            display: flex; gap: 10px; background: #1a1410; padding: 20px; border-radius: 12px;
+            border: 1px solid #2d241d;
+        }
+
+        input {
+            padding: 12px; border-radius: 6px; border: 1px solid #2d241d;
+            background: #000; color: #fbbf24; outline: none; width: 300px;
+        }
+
+        button {
+            padding: 12px 24px; border: none; border-radius: 6px;
+            background: #ff7b00; color: #000; font-weight: bold; cursor: pointer;
+        }
+
+        /* The Top Bar (Search Bar) */
+        #top-bar {
+            background: #1a1410; padding: 8px; display: flex;
+            justify-content: center; border-bottom: 1px solid #2d241d;
+        }
+
+        #search-bar {
+            width: 80%; max-width: 800px;
+        }
+
+        /* The Frame */
+        #iframe-frame {
+            flex: 1; width: 100%; border: none; background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STEP 1: Enter Gate -->
+    <div id="gate-screen">
+        <h2 style="margin-bottom: 20px;">Enter Proxy Gate URL</h2>
+        <div class="input-group">
+            <input type="text" id="gate-input" placeholder="https://script.google.com/.../exec">
+            <button onclick="setGate()">Connect</button>
+        </div>
+        <p style="font-size: 12px; color: #666; margin-top: 10px;">Make sure it ends with /exec</p>
+    </div>
+
+    <!-- STEP 2: The Browser -->
+    <div id="browser-screen">
+        <div id="top-bar">
+            <input type="text" id="search-bar" placeholder="Enter URL or Search...">
+        </div>
+        <iframe id="iframe-frame" src="about:blank"></iframe>
+    </div>
+
+    <script>
+        let gateUrl = "";
+
+        function setGate() {
+            let input = document.getElementById('gate-input').value.trim();
+            
+            if (!input.startsWith('http')) {
+                alert("Please enter a full URL starting with http:// or https://");
+                return;
+            }
+
+            gateUrl = input;
+            
+            // Switch screens
+            document.getElementById('gate-screen').style.display = 'none';
+            document.getElementById('browser-screen').style.display = 'flex';
+            document.getElementById('search-bar').focus();
+        }
+
+        function performSearch() {
+            let query = document.getElementById('search-bar').value.trim();
+            if (!query) return;
+
+            let targetUrl = query;
+
+            // 1. Check if it's a URL, if not, make it a DuckDuckGo search
+            if (!/^https?:\/\//i.test(query)) {
+                if (/^[a-z0-9.-]+\.[a-z]{2,}/i.test(query)) {
+                    targetUrl = 'https://' + query;
+                } else {
+                    targetUrl = 'https://duckduckgo.com/html/?q=' + encodeURIComponent(query);
+                }
+            }
+
+            // 2. Construct the Proxy URL
+            // We add a '?' to the gate if it doesn't have one, then add the url parameter
+            const separator = gateUrl.includes('?') ? '&' : '?';
+            const finalProxyUrl = gateUrl + separator + "url=" + encodeURIComponent(targetUrl);
+
+            console.log("Loading:", finalProxyUrl);
+            
+            // 3. Load the iframe
+            const frame = document.getElementById('iframe-frame');
+            frame.src = finalProxyUrl;
+        }
+
+        // Listen for Enter key on search bar
+        document.getElementById('search-bar').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>
