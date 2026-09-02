@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Full HTML Page Generator</title>
+<title>Full Screen Iframe Generator</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -13,15 +13,19 @@
   h1 {
     text-align: center;
   }
+  label {
+    display: block;
+    margin-top: 10px;
+  }
   input[type="text"], input[type="url"] {
     width: 70%;
     padding: 10px;
     font-size: 1em;
-    margin-bottom: 10px;
   }
   button {
     padding: 10px 20px;
     font-size: 1em;
+    margin-top: 10px;
   }
   #result {
     margin-top: 20px;
@@ -29,7 +33,7 @@
   }
   textarea {
     width: 100%;
-    height: 300px;
+    height: 400px;
     white-space: pre;
     font-family: monospace;
   }
@@ -37,25 +41,27 @@
 </head>
 <body>
 
-<h1>Full HTML Page Generator</h1>
+<h1>Full Screen Iframe Page Generator</h1>
 
 <div style="max-width:600px; margin:auto;">
-  <label for="titleInput">Page Title:</label><br>
-  <input type="text" id="titleInput" placeholder="Enter page title" /><br>
-  <label for="linkInput">URL:</label><br>
-  <input type="url" id="linkInput" placeholder="Enter URL here" /><br>
-  <button onclick="generateFullHTML()">Generate HTML File</button>
+  <label for="titleInput">Page Title:</label>
+  <input type="text" id="titleInput" placeholder="Enter page title" />
+
+  <label for="linkInput">URL to Embed:</label>
+  <input type="url" id="linkInput" placeholder="Enter URL here" />
+
+  <button onclick="generateFullIframeHTML()">Generate HTML File</button>
 </div>
 
 <div id="result">
-  <h2>Download Your HTML File</h2>
-  <p>Copy the code below, save it as a .html file, and open in your browser.</p>
+  <h2>Copy Your Full HTML Page</h2>
+  <p>Save this code as a .html file and open in your browser.</p>
   <textarea id="htmlCode" readonly></textarea>
 </div>
 
 <script>
-function generateFullHTML() {
-  const title = document.getElementById('titleInput').value.trim() || 'My Page';
+function generateFullIframeHTML() {
+  const title = document.getElementById('titleInput').value.trim() || 'Embedded Page';
   const url = document.getElementById('linkInput').value.trim();
   if (!url) {
     alert('Please enter a URL.');
@@ -68,9 +74,21 @@ function generateFullHTML() {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${title}</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
 </head>
 <body>
-<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+<iframe src="${url}" title="${title}"></iframe>
 </body>
 </html>`;
 
